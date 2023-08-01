@@ -1,5 +1,7 @@
 import pygame
 from tiles import Tile
+from deathtiles1 import DeathTile1
+from deathtiles2 import DeathTile2
 from settings import tile_size, screen_width
 from player import Player
 
@@ -13,6 +15,7 @@ class Level:
 
     def setup_level(self, layout):
         self.tiles = pygame.sprite.Group()
+        self.deathtiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
 
         for r, row in enumerate(layout):
@@ -25,7 +28,13 @@ class Level:
                 if cell == 'P':
                     player_sprite = Player((x, y))
                     self.player.add(player_sprite)
-
+                if cell == 'D':
+                    dTile = DeathTile1((x, y), tile_size)
+                    self.deathtiles.add(dTile)
+                if cell == 'Y':
+                    dTile = DeathTile2((x, y), tile_size)
+                    self.deathtiles.add(dTile)
+ 
     def scroll_x(self):
         player = self.player.sprite
         player_x = player.rect.centerx
@@ -40,6 +49,15 @@ class Level:
         else:
             self.world_shift = 0
             player.speed = 8
+
+    def death_collision(self):
+        player = self.player.sprite
+        player.rect.x += player.direction.x * player.speed
+
+        for sprite in self.deathtiles.sprites():
+            if sprite.rect.colliderect(player.rect):
+                player.rect.centerx = 69
+
 
     def horizontal_collision(self):
         player = self.player.sprite
@@ -80,11 +98,14 @@ class Level:
         # Tiles
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
+        self.deathtiles.update(self.world_shift)
+        self.deathtiles.draw(self.display_surface)
         self.scroll_x()
 
         # Player
         self.player.update()
         self.horizontal_collision()
         self.vertical_collision()
+        self.death_collision()
         self.player.draw(self.display_surface)
         
