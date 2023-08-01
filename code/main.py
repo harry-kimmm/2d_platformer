@@ -5,12 +5,13 @@ from level import Level
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
+pygame.display.set_caption('Ninja Platformer')
 level = Level(level_map, screen)
 
 while True:
     for event in pygame.event.get():    
         if event.type == pygame.QUIT:
-            pygame.quit()
+            pygame.quit() 
             sys.exit()
 
     screen.fill('white')

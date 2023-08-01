@@ -2,7 +2,8 @@ import pygame
 from tiles import Tile
 from deathtiles1 import DeathTile1
 from deathtiles2 import DeathTile2
-from settings import tile_size, screen_width
+from wintile import WinTile
+from settings import tile_size, screen_width, screen_height
 from player import Player
 
 class Level:
@@ -16,6 +17,7 @@ class Level:
     def setup_level(self, layout):
         self.tiles = pygame.sprite.Group()
         self.deathtiles = pygame.sprite.Group()
+        self.wintiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
 
         for r, row in enumerate(layout):
@@ -34,6 +36,9 @@ class Level:
                 if cell == 'Y':
                     dTile = DeathTile2((x, y), tile_size)
                     self.deathtiles.add(dTile)
+                if cell == 'W':
+                    wTile = WinTile((x, y), tile_size)
+                    self.wintiles.add(wTile)
  
     def scroll_x(self):
         player = self.player.sprite
@@ -51,13 +56,28 @@ class Level:
             player.speed = 8
 
     def death_collision(self):
+
         player = self.player.sprite
         player.rect.x += player.direction.x * player.speed
-
+        
         for sprite in self.deathtiles.sprites():
             if sprite.rect.colliderect(player.rect):
-                player.rect.centerx = 69
+                time.sleep(2)
+                pygame.quit()
 
+    def win_collision(self):
+        font = pygame.font.Font('freesansbold.ttf', 50)
+        text = font.render('You win!', True, (255,255,0), (255 ,255, 255))
+        textRect = text.get_rect()
+        textRect.center = (screen_width // 2, screen_height // 2)
+
+        player = self.player.sprite
+        player.rect.x += player.direction.x * player.speed
+        
+        for sprite in self.wintiles.sprites():
+            if sprite.rect.colliderect(player.rect):
+                self.display_surface.blit(text, textRect)
+                
 
     def horizontal_collision(self):
         player = self.player.sprite
@@ -100,6 +120,8 @@ class Level:
         self.tiles.draw(self.display_surface)
         self.deathtiles.update(self.world_shift)
         self.deathtiles.draw(self.display_surface)
+        self.wintiles.update(self.world_shift)
+        self.wintiles.draw(self.display_surface)
         self.scroll_x()
 
         # Player
@@ -107,5 +129,6 @@ class Level:
         self.horizontal_collision()
         self.vertical_collision()
         self.death_collision()
+        self.win_collision()
         self.player.draw(self.display_surface)
         
