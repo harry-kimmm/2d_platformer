@@ -62,7 +62,7 @@ class Level:
         
         for sprite in self.deathtiles.sprites():
             if sprite.rect.colliderect(player.rect):
-                time.sleep(2)
+                pygame.time.wait(1000)
                 pygame.quit()
 
     def win_collision(self):
